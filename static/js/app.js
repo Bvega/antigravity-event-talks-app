@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // DOM Elements
     const refreshBtn = document.getElementById('refresh-btn');
     const exportCsvBtn = document.getElementById('export-csv-btn');
-    const themeToggle = document.getElementById('theme-toggle');
+    const themeToggleSwitch = document.getElementById('theme-toggle-switch');
     const searchInput = document.getElementById('search-input');
     const clearSearchBtn = document.getElementById('clear-search');
     const filterPills = document.getElementById('filter-pills');
@@ -47,8 +47,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // Export CSV Button Click
     exportCsvBtn.addEventListener('click', exportToCSV);
 
-    // Theme Toggle Click
-    themeToggle.addEventListener('click', toggleTheme);
+    // Theme Toggle Change
+    themeToggleSwitch.addEventListener('change', toggleTheme);
 
     // Search Input
     searchInput.addEventListener('input', (e) => {
@@ -461,22 +461,22 @@ document.addEventListener('DOMContentLoaded', () => {
         const savedTheme = localStorage.getItem('theme') || 'dark';
         if (savedTheme === 'light') {
             document.documentElement.classList.add('light-theme');
-            themeToggle.innerHTML = '<i class="fa-solid fa-sun"></i>';
+            themeToggleSwitch.checked = true;
         } else {
             document.documentElement.classList.remove('light-theme');
-            themeToggle.innerHTML = '<i class="fa-solid fa-moon"></i>';
+            themeToggleSwitch.checked = false;
         }
     }
 
     function toggleTheme() {
-        const isLight = document.documentElement.classList.toggle('light-theme');
+        const isLight = themeToggleSwitch.checked;
         if (isLight) {
+            document.documentElement.classList.add('light-theme');
             localStorage.setItem('theme', 'light');
-            themeToggle.innerHTML = '<i class="fa-solid fa-sun"></i>';
             showToast('Switched to Light mode');
         } else {
+            document.documentElement.classList.remove('light-theme');
             localStorage.setItem('theme', 'dark');
-            themeToggle.innerHTML = '<i class="fa-solid fa-moon"></i>';
             showToast('Switched to Dark mode');
         }
     }
