@@ -25,23 +25,48 @@ bq-releases-notes/
 │   │   └── style.css       # Core design tokens, dark/light theme variables, animations
 │   └── js/
 │   │   └── app.js          # API calls, state management, search filters, modal controller
-└── venv/                   # Python Virtual Environment
+├── .gitignore              # Configured Git ignore rules
+├── requirements.txt        # Python dependencies list
+└── README.md               # Project documentation
 ```
 
 ## Setup & Running the Application
 
-### 1. Requirements
-Ensure you have Python 3.8+ installed.
+### 1. Prerequisites
+Ensure you have Python 3.8+ installed on your machine.
 
-### 2. Run the App
+### 2. Installation
+Clone this repository and navigate to the project directory:
+```bash
+git clone https://github.com/Bvega/antigravity-event-talks-app.git
+cd bq-releases-notes
+```
+
+### 3. Setup Virtual Environment & Dependencies
+Create a virtual environment, activate it, and install dependencies from `requirements.txt`:
+
+**On macOS/Linux:**
+```bash
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+```
+
+**On Windows:**
+```cmd
+python -m venv venv
+venv\Scripts\activate
+pip install -r requirements.txt
+```
+
+### 4. Run the App
 To start the Flask development server:
 ```bash
-# Run the application using the local virtual environment
-./venv/bin/python3 app.py
+python app.py
 ```
-The server will start at **`http://127.0.0.1:8080`**.
+The server will start locally at **`http://127.0.0.1:8080`**.
 
-### 3. Open in Browser
+### 5. Open in Browser
 Open `http://127.0.0.1:8080` in your browser to view the BigQuery Release Notes Hub!
 
 ## API Endpoints
@@ -50,3 +75,6 @@ Open `http://127.0.0.1:8080` in your browser to view the BigQuery Release Notes 
 - **`GET /api/releases`**: Returns JSON data of parsed release notes.
   - **Query Parameters**:
     - `refresh=true` (optional): Bypasses the in-memory cache to fetch fresh data from Google Cloud.
+
+## GitHub Repository
+This project is hosted on GitHub at [https://github.com/Bvega/antigravity-event-talks-app](https://github.com/Bvega/antigravity-event-talks-app).
