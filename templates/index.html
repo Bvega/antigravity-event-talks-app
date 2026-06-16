@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BigQuery Release Notes Hub</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header Section -->
+        <header class="app-header">
+            <div class="header-logo">
+                <div class="logo-icon">
+                    <i class="fa-solid fa-database"></i>
+                    <i class="fa-solid fa-bolt logo-sparkle"></i>
+                </div>
+                <div class="logo-text">
+                    <h1>BigQuery</h1>
+                    <span>Release Notes Hub</span>
+                </div>
+            </div>
+            
+            <div class="header-actions">
+                <button id="theme-toggle" class="btn btn-icon" aria-label="Toggle dark/light mode">
+                    <i class="fa-solid fa-moon"></i>
+                </button>
+                <button id="refresh-btn" class="btn btn-primary">
+                    <i class="fa-solid fa-rotate-right btn-spinner"></i>
+                    <span>Refresh</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Dashboard Layout -->
+        <main class="app-main">
+            <!-- Controls Section -->
+            <section class="controls-panel">
+                <div class="search-wrapper">
+                    <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                    <input type="text" id="search-input" placeholder="Search features, fixes, and announcements..." autocomplete="off">
+                    <button id="clear-search" class="btn-clear" style="display: none;">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+                
+                <div class="filters-wrapper">
+                    <span class="filters-label">Filter by type:</span>
+                    <div class="filter-pills" id="filter-pills">
+                        <button class="pill active" data-type="all">All Updates</button>
+                        <button class="pill" data-type="Feature"><span class="indicator feat"></span>Features</button>
+                        <button class="pill" data-type="Issue"><span class="indicator iss"></span>Issues</button>
+                        <button class="pill" data-type="Deprecation"><span class="indicator dep"></span>Deprecations</button>
+                        <button class="pill" data-type="other"><span class="indicator oth"></span>Other</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Status Alerts -->
+            <div id="status-toast" class="toast-alert" style="display: none;">
+                <span class="toast-message"></span>
+                <button class="toast-close"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+
+            <!-- Feed Timeline Container -->
+            <section class="feed-section">
+                <div class="feed-header-meta">
+                    <span id="results-count">Loading release notes...</span>
+                </div>
+                
+                <!-- Loading State Skeleton -->
+                <div id="skeleton-loader" class="skeleton-container">
+                    <div class="skeleton-card"></div>
+                    <div class="skeleton-card"></div>
+                    <div class="skeleton-card"></div>
+                </div>
+
+                <!-- Feed Updates Timeline -->
+                <div id="updates-timeline" class="timeline-container" style="display: none;">
+                    <!-- Appended dynamically by JS -->
+                </div>
+
+                <!-- Empty State -->
+                <div id="empty-state" class="empty-state-container" style="display: none;">
+                    <i class="fa-regular fa-folder-open empty-icon"></i>
+                    <h3>No release notes match your filters</h3>
+                    <p>Try broadening your search criteria or resetting filters.</p>
+                    <button id="reset-filters-btn" class="btn btn-secondary">Reset Filters</button>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="app-footer-nav">
+            <p>Made with Python Flask &amp; Vanilla Web Technologies</p>
+        </footer>
+    </div>
+
+    <!-- Custom Twitter Composer Modal -->
+    <div id="tweet-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content glass">
+            <div class="modal-header">
+                <h3><i class="fa-brands fa-x-twitter"></i> Share to X / Twitter</h3>
+                <button id="close-modal" class="btn-close"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            
+            <div class="modal-body">
+                <div class="card-preview-container">
+                    <span class="preview-label">Drafting update from release note:</span>
+                    <div id="modal-card-preview" class="mini-card-preview">
+                        <!-- Small representation of selected card -->
+                    </div>
+                </div>
+                
+                <div class="text-editor-container">
+                    <label for="tweet-textarea">Customize your post:</label>
+                    <textarea id="tweet-textarea" rows="5" maxlength="280"></textarea>
+                    
+                    <div class="editor-meta">
+                        <span id="char-counter" class="char-count">0 / 280</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="modal-footer">
+                <button id="copy-text-btn" class="btn btn-secondary">
+                    <i class="fa-regular fa-copy"></i>
+                    <span>Copy Text</span>
+                </button>
+                <button id="send-tweet-btn" class="btn btn-tweet">
+                    <i class="fa-brands fa-x-twitter"></i>
+                    <span>Post to X</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom JS -->
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>
