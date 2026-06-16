@@ -4,9 +4,11 @@ document.addEventListener('DOMContentLoaded', () => {
     let activeFilter = 'all'; // Current active pill filter
     let searchQuery = ''; // Search input text
     let selectedUpdate = null; // The update object currently active in the tweet modal
+    let currentFilteredUpdates = []; // Holds currently filtered updates for CSV export
 
     // DOM Elements
     const refreshBtn = document.getElementById('refresh-btn');
+    const exportCsvBtn = document.getElementById('export-csv-btn');
     const themeToggle = document.getElementById('theme-toggle');
     const searchInput = document.getElementById('search-input');
     const clearSearchBtn = document.getElementById('clear-search');
@@ -41,6 +43,9 @@ document.addEventListener('DOMContentLoaded', () => {
     refreshBtn.addEventListener('click', () => {
         fetchReleases(true);
     });
+
+    // Export CSV Button Click
+    exportCsvBtn.addEventListener('click', exportToCSV);
 
     // Theme Toggle Click
     themeToggle.addEventListener('click', toggleTheme);
@@ -151,6 +156,9 @@ document.addEventListener('DOMContentLoaded', () => {
         // Set loading state
         document.body.classList.add('loading');
         refreshBtn.disabled = true;
+        exportCsvBtn.disabled = true;
+        exportCsvBtn.style.opacity = '0.5';
+        exportCsvBtn.style.cursor = 'not-allowed';
         skeletonLoader.style.display = 'flex';
         updatesTimeline.style.display = 'none';
         emptyState.style.display = 'none';
@@ -227,17 +235,29 @@ document.addEventListener('DOMContentLoaded', () => {
             );
         }
 
+        currentFilteredUpdates = updates;
+
         // Render Cards
         if (updates.length === 0) {
             resultsCount.textContent = '0 updates found';
             updatesTimeline.style.display = 'none';
             emptyState.style.display = 'flex';
+            
+            // Disable CSV Export button
+            exportCsvBtn.disabled = true;
+            exportCsvBtn.style.opacity = '0.5';
+            exportCsvBtn.style.cursor = 'not-allowed';
             return;
         }
 
         resultsCount.textContent = `Showing ${updates.length} release note update${updates.length === 1 ? '' : 's'}`;
         emptyState.style.display = 'none';
         updatesTimeline.style.display = 'flex';
+
+        // Enable CSV Export button
+        exportCsvBtn.disabled = false;
+        exportCsvBtn.style.opacity = '1';
+        exportCsvBtn.style.cursor = 'pointer';
 
         updates.forEach((update, idx) => {
             const card = createUpdateCard(update, idx);
@@ -282,7 +302,11 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="card-body">
                 ${update.html}
             </div>
-            <div class="card-footer">
+            <div class="card-footer" style="gap: 0.5rem;">
+                <button class="btn btn-secondary card-copy-btn" title="Copy text to clipboard">
+                    <i class="fa-regular fa-copy"></i>
+                    <span>Copy</span>
+                </button>
                 <button class="btn btn-tweet card-tweet-btn">
                     <i class="fa-brands fa-x-twitter"></i>
                     <span>Tweet this</span>
@@ -301,6 +325,24 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!isSelected) {
                 card.classList.add('selected');
             }
+        });
+
+        // Card Copy Button Click Handler
+        const cardCopyBtn = card.querySelector('.card-copy-btn');
+        cardCopyBtn.addEventListener('click', (e) => {
+            e.stopPropagation(); // Avoid triggering selection
+            const textToCopy = `BigQuery Release Note (${update.date}) - [${update.type}]: ${update.text} (Source: ${update.link})`;
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                const originalHtml = cardCopyBtn.innerHTML;
+                cardCopyBtn.innerHTML = '<i class="fa-solid fa-check"></i> <span>Copied!</span>';
+                showToast('Copied release note to clipboard!');
+                setTimeout(() => {
+                    cardCopyBtn.innerHTML = originalHtml;
+                }, 2000);
+            }).catch(err => {
+                console.error('Clipboard copy failed: ', err);
+                showToast('Failed to copy. Please copy manually.');
+            });
         });
 
         // Card Tweet Button Click Handler
@@ -437,5 +479,45 @@ document.addEventListener('DOMContentLoaded', () => {
             themeToggle.innerHTML = '<i class="fa-solid fa-moon"></i>';
             showToast('Switched to Dark mode');
         }
+    }
+
+    // Export the currently filtered release notes to a CSV file
+    function exportToCSV() {
+        if (currentFilteredUpdates.length === 0) {
+            showToast('No data to export.');
+            return;
+        }
+
+        // CSV Headers
+        const headers = ['Date', 'Type', 'Description', 'Link'];
+        
+        // Map data to CSV rows, escaping double quotes
+        const csvRows = [
+            headers.map(h => `"${h}"`).join(','), // Header row
+            ...currentFilteredUpdates.map(u => [
+                `"${u.date.replace(/"/g, '""')}"`,
+                `"${u.type.replace(/"/g, '""')}"`,
+                `"${u.text.replace(/"/g, '""')}"`,
+                `"${u.link.replace(/"/g, '""')}"`
+            ].join(','))
+        ];
+
+        const csvContent = csvRows.join('\n');
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        
+        const link = document.createElement("a");
+        link.setAttribute("href", url);
+        
+        const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, '_');
+        link.setAttribute("download", `bq_releases_export_${dateStr}.csv`);
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url); // Clean up
+        
+        showToast(`Successfully exported ${currentFilteredUpdates.length} updates to CSV!`);
     }
 });
